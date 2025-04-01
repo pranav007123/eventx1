@@ -13,11 +13,119 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .forms import ProfileUpdateForm, PasswordChangeForm
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 User = get_user_model()
 
 # Initialize Razorpay client
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+# ------------------------------------------------------------------
+# Password Reset Views
+# ------------------------------------------------------------------
+
+def custom_password_reset(request):
+    """Custom password reset view"""
+    if request.method == "POST":
+        email = request.POST.get("email")
+        try:
+            user = CustomAdmin.objects.get(email=email)
+            # Generate token and UID
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Build reset URL
+            reset_url = f"{request.scheme}://{request.get_host()}/reset/{uid}/{token}/"
+            
+            # Create email content
+            subject = "EventX Password Reset"
+            context = {
+                "user": user,
+                "domain": request.get_host(),
+                "protocol": request.scheme,
+                "uid": uid,
+                "token": token,
+                "reset_url": reset_url,
+            }
+            
+            # Avoid render_to_string and create the email message directly
+            email_message = f"""
+Hello {user.get_username()},
+
+You are receiving this email because you requested a password reset for your account at EventX.
+
+Please go to the following page and choose a new password:
+{reset_url}
+
+Your username is: {user.get_username()}
+
+Thank you for using EventX!
+            """
+            
+            # Send email
+            send_mail(
+                subject,
+                email_message,
+                settings.EMAIL_HOST_USER,
+                [user.email],
+                fail_silently=False,
+            )
+            
+            return redirect("password_reset_done")
+        except CustomAdmin.DoesNotExist:
+            # We don't want to reveal whether a user exists or not
+            # So we still redirect to the done page
+            messages.info(request, "If the email exists in our system, a password reset link has been sent.")
+            return redirect("password_reset_done")
+    
+    return render(request, "registration/password_reset_form.html")
+
+def custom_password_reset_done(request):
+    """Custom password reset done view"""
+    return render(request, "registration/password_reset_done.html")
+
+def custom_password_reset_confirm(request, uidb64, token):
+    """Custom password reset confirm view"""
+    try:
+        # Decode the UID
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = CustomAdmin.objects.get(pk=uid)
+        
+        # Check if the token is valid
+        if default_token_generator.check_token(user, token):
+            if request.method == "POST":
+                # Process form submission
+                new_password1 = request.POST.get("new_password1")
+                new_password2 = request.POST.get("new_password2")
+                
+                if new_password1 != new_password2:
+                    messages.error(request, "Passwords don't match.")
+                    return render(request, "registration/password_reset_confirm.html", {"validlink": True})
+                
+                if len(new_password1) < 8:
+                    messages.error(request, "Password must be at least 8 characters long.")
+                    return render(request, "registration/password_reset_confirm.html", {"validlink": True})
+                
+                # Set the new password
+                user.set_password(new_password1)
+                user.save()
+                
+                return redirect("password_reset_complete")
+            
+            return render(request, "registration/password_reset_confirm.html", {"validlink": True})
+        else:
+            return render(request, "registration/password_reset_confirm.html", {"validlink": False})
+    
+    except (TypeError, ValueError, OverflowError, CustomAdmin.DoesNotExist):
+        return render(request, "registration/password_reset_confirm.html", {"validlink": False})
+
+def custom_password_reset_complete(request):
+    """Custom password reset complete view"""
+    return render(request, "registration/password_reset_complete.html")
 
 # ------------------------------------------------------------------
 # Public Views

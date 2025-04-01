@@ -23,7 +23,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     # path('admin/', admin.site.urls),
     path('', include('events.urls')),
-    path('accounts/', include('django.contrib.auth.urls')), 
+    # Removed django.contrib.auth.urls to avoid conflicts with our custom auth views
+    # path('accounts/', include('django.contrib.auth.urls')), 
     #  path('admin/logout/', auth_views.LogoutView.as_view(next_page='/admin/login/'), name='admin_logout'),
 ]
 

@@ -17,6 +17,31 @@ urlpatterns = [
     path("login/", views.custom_login, name="login"),
     path("logout/", views.logout_view, name="logout"),
     
+    # Password Reset URLs - Custom Implementation
+
+    path('password-reset/', 
+         views.custom_password_reset, 
+         name='password_reset'),
+    path('password-reset/done/', 
+         views.custom_password_reset_done, 
+         name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', 
+         views.custom_password_reset_confirm, 
+         name='password_reset_confirm'),
+    path('reset/done/', 
+         views.custom_password_reset_complete, 
+         name='password_reset_complete'),
+         
+    # Additional accounts URLs to maintain compatibility
+    path('accounts/password_reset/', 
+         views.custom_password_reset),
+    path('accounts/password_reset/done/', 
+         views.custom_password_reset_done),
+    path('accounts/reset/<uidb64>/<token>/', 
+         views.custom_password_reset_confirm),
+    path('accounts/reset/done/', 
+         views.custom_password_reset_complete),
+    
     # Seller Routes
 
     path("seller/login/", views.seller_login, name="seller_login"),

@@ -42,7 +42,10 @@ ROOT_URLCONF = 'eventx.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'events' / 'templates',  # Our app templates first
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -130,3 +133,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RAZORPAY_KEY_ID = 'rzp_test_R00Zy6ve0bPcx1'  # Replace with your test key
 RAZORPAY_KEY_SECRET = 'XGPWyeenCcs8pRDhcFEz2WOl'  # Replace with your test secret
 RAZORPAY_CURRENCY = 'INR'
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # For Gmail
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'pb132001@gmail.com'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = 'lgqp xlhr ekeg snmo'  # Replace with your Gmail app password
