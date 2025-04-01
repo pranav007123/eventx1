@@ -1,0 +1,121 @@
+{% extends "events/base.html" %}
+{% load static %}
+
+{% block title %}Edit Event - EventX{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Edit Event</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Event Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ event.name }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                <textarea class="form-control" id="description" name="description" rows="3" required>{{ event.description }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Event Date</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                <input type="date" class="form-control" id="date" name="date" value="{{ event.date }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                <input type="text" class="form-control" id="location" name="location" value="{{ event.location }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-rupee-sign"></i></span>
+                                <input type="number" class="form-control" id="price" name="price" value="{{ event.price }}" step="0.01" min="0" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="total_tickets" class="form-label">Total Tickets</label>
+                                <input type="number" class="form-control" id="total_tickets" name="total_tickets" value="{{ event.total_tickets }}" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="available_tickets" class="form-label">Available Tickets</label>
+                                <input type="number" class="form-control" id="available_tickets" name="available_tickets" value="{{ event.available_tickets }}" min="0" required>
+                                <div class="form-text">Cannot be less than sold tickets ({{ event.total_tickets|add:"-"|add:event.available_tickets }})</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Event Image</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-image"></i></span>
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            </div>
+                            {% if event.image %}
+                                <div class="mt-2">
+                                    <img src="{{ event.image.url }}" alt="Current event image" class="img-thumbnail" style="max-height: 200px;">
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Event
+                            </button>
+                            <a href="{% url 'event_detail' event.id %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %} 

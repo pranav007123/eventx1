@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt - {{ booking.event.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+        }
+        .receipt {
+            max-width: 400px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px dashed #ddd;
+            padding-bottom: 10px;
+        }
+        .event-details {
+            margin-bottom: 20px;
+        }
+        .booking-details {
+            margin-bottom: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            border-top: 2px dashed #ddd;
+            padding-top: 10px;
+        }
+        @media print {
+            body {
+                padding: 0;
+            }
+            .receipt {
+                border: none;
+                padding: 0;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <h2>EventX</h2>
+            <p>Booking Receipt</p>
+        </div>
+        
+        <div class="event-details">
+            <h3>{{ booking.event.name }}</h3>
+            <p><strong>Date:</strong> {{ booking.event.date|date:"F j, Y, g:i A" }}</p>
+            <p><strong>Location:</strong> {{ booking.event.location }}</p>
+            <p><strong>Organizer:</strong> {{ booking.event.seller.user.first_name|default:booking.event.seller.user.username }}</p>
+        </div>
+
+        <div class="booking-details">
+            <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+            <p><strong>Customer:</strong> {{ booking.user.get_full_name|default:booking.user.username }}</p>
+            <p><strong>Email:</strong> {{ booking.user.email }}</p>
+            <p><strong>Quantity:</strong> {{ booking.quantity }} ticket(s)</p>
+            <p><strong>Total Amount:</strong> ₹{{ booking.total_amount }}</p>
+            <p><strong>Status:</strong> {{ booking.status|title }}</p>
+            <p><strong>Booked On:</strong> {{ booking.booking_date|date:"F j, Y, g:i A" }}</p>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for choosing EventX!</p>
+            <p>For support, contact: support@eventx.com</p>
+        </div>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin-top: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Print Receipt</button>
+    </div>
+</body>
+</html> 
