@@ -110,10 +110,7 @@ class Booking(models.Model):
     def save(self, *args, **kwargs):
         if not self.total_amount:
             self.total_amount = self.event.price * self.quantity
-        if self.status == 'confirmed' and not hasattr(self, '_booking_processed'):
-            self.event.available_tickets -= self.quantity
-            self.event.save()
-            self._booking_processed = True
+        # Remove the automatic ticket deduction - this is now handled in the views
         super().save(*args, **kwargs)
 
     def __str__(self):

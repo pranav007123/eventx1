@@ -581,10 +581,6 @@ def book_event(request, event_id):
             return redirect("event_detail", event_id=event_id)
         
         try:
-            # Update available tickets first
-            event.available_tickets -= quantity
-            event.save()
-            
             # Create the booking
             booking = Booking.objects.create(
                 user=request.user,
@@ -600,6 +596,10 @@ def book_event(request, event_id):
                 event_booking=booking,
                 total_amount=total_amount
             )
+            
+            # Update available tickets
+            event.available_tickets -= quantity
+            event.save()
             
             # Deduct balance from user's account
             request.user.profile.deduct_balance(total_amount)
